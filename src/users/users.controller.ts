@@ -6,8 +6,16 @@ import {
   ParseIntPipe,
   Post,
 } from '@nestjs/common';
-import { ApiForbiddenResponse, ApiTags } from '@nestjs/swagger';
-import { UserDto } from './dto/user.dto';
+import {
+  ApiForbiddenResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  CreateAccountInputDto,
+  CreateAccountOutputDto,
+} from './dto/create-account.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -27,7 +35,11 @@ export class UserController {
   }
 
   @Post()
-  async create(@Body() createUserDto: UserDto) {
-    return this.usersService.createUser(createUserDto);
+  @ApiOperation({ summary: 'Create Account' })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  async createAccount(
+    @Body() createUserDto: CreateAccountInputDto,
+  ): Promise<CreateAccountOutputDto> {
+    return this.usersService.createAccount(createUserDto);
   }
 }
