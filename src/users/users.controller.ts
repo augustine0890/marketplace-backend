@@ -1,21 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-} from '@nestjs/common';
-import {
-  ApiForbiddenResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
-import {
-  CreateAccountInputDto,
-  CreateAccountOutputDto,
-} from './dto/create-account.dto';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { ApiForbiddenResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -26,20 +10,11 @@ export class UserController {
   @ApiForbiddenResponse({ description: 'Forbidden' })
   @Get()
   async findAll() {
-    return this.usersService.getUsers();
+    return this.usersService.getAllUsers();
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.getUser(id);
-  }
-
-  @Post()
-  @ApiOperation({ summary: 'Create Account' })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  async createAccount(
-    @Body() createUserDto: CreateAccountInputDto,
-  ): Promise<CreateAccountOutputDto> {
-    return this.usersService.createAccount(createUserDto);
+  async userProfile(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getById(id);
   }
 }

@@ -1,10 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import {
-  CreateAccountInputDto,
-  CreateAccountOutputDto,
-} from './dto/create-account.dto';
+import { CreateAccountInputDto } from './dto/create-account.dto';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -14,27 +11,46 @@ export class UsersService {
     private readonly userRespository: Repository<User>,
   ) {}
 
-  async getUsers() {
-    return await this.userRespository.find();
-  }
-
-  async getUser(id: number): Promise<any> {
-    const user = await this.userRespository.findOne(id);
-    if (!user) {
-      throw new NotFoundException(`User #${id} not found`);
+  async getAllUsers() {
+    try {
+      const users = await this.userRespository.find();
+      return users;
+    } catch (e) {
+      return { error: `Could not get the Users.` };
     }
-    return user;
   }
 
-  async createAccount({
-    name,
-    email,
-    password,
-  }: CreateAccountInputDto): Promise<CreateAccountOutputDto> {
+  async getById(id: number) {
+    try {
+      const user = await this.userRespository.findOneOrFail({ id });
+      return user;
+    } catch (error) {
+      return { error: `User #${id} Not Found` };
+    }
+  }
+
+  async getByEmail(email: string) {
+    try {
+      const user = await this.userRespository.findOne({ email });
+      if (user) {
+        return user;
+      }
+    } catch (error) {
+      throw new HttpException(
+        'User with this email does not exist',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+  }
+
+  async createAccount({ name, email, password }: CreateAccountInputDto) {
     try {
       const exists = await this.userRespository.findOne({ email });
       if (exists) {
-        return { ok: false, error: 'There is a user with that email already' };
+        throw new HttpException(
+          'There is a user with that email already',
+          HttpStatus.BAD_REQUEST,
+        );
       }
       await this.userRespository.save(
         this.userRespository.create({ name, email, password }),
