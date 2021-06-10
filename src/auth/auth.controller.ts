@@ -5,13 +5,12 @@ import {
   HttpStatus,
   Post,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterInputDto } from './dto/register.dto';
-import { LocalAuthGuard } from './guards/local-auth.guard';
-import { RequestWithUser } from './requestWithUser.interface';
+// import { LocalAuthGuard } from './guards/local-auth.guard';
+// import { RequestWithUser } from './interfaces/requestWithUser.interface';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -30,10 +29,13 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LocalAuthGuard)
-  async login(@Req() request: RequestWithUser) {
-    const user = request.user;
-    user.password = undefined;
+  // @UseGuards(LocalAuthGuard)
+  async login(@Req() request) {
+    const { user } = request;
+    console.log(user);
+    // const cookie = this.authService.getCookieWithJwtToken(user.id);
+    // request.res.setHeader('Set-Cookie', cookie);
+    // user.password = undefined;
     return user;
   }
 }
