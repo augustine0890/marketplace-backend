@@ -6,6 +6,8 @@ import { AuthModule } from './auth/auth.module';
 import { config } from './config';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -32,6 +34,12 @@ import { AppController } from './app.controller';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

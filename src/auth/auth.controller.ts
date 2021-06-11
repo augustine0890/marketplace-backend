@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpException,
   HttpStatus,
@@ -8,7 +9,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/decorator/public.decorator';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { AuthService } from './auth.service';
@@ -17,6 +18,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthenticatedRequest } from './interfaces/authRequest.interface';
 import { AuthResponse } from './interfaces/authResponse.interface';
 import { SuccessResponseDTO } from 'src/common/response';
+import { AuthUserDto } from './dto/login.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -38,6 +40,7 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
+  @ApiBody({ type: AuthUserDto })
   async emailLogin(
     @Req() request: AuthenticatedRequest<any, Partial<UserEntity>>,
   ): Promise<SuccessResponseDTO<AuthResponse>> {
@@ -45,7 +48,23 @@ export class AuthController {
       const data = await this.authService.login(request.user);
       return { data };
     } catch (error) {
-      throw new HttpException('Something wrong', HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'AuthController.emailLogin',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  @Public()
+  @Get('refresh')
+  async refresh(
+    @Req() request: AuthenticatedRequest,
+  ): Promise<SuccessResponseDTO> {
+    try {
+      const data = await this.authService.login(request.user);
+      return { data };
+    } catch (error) {
+      throw new HttpException('AuthController.refresh', HttpStatus.BAD_REQUEST);
     }
   }
 }

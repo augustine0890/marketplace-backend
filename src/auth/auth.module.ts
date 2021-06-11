@@ -22,6 +22,6 @@ const config = auth();
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy],
-  exports: [AuthService],
+  exports: [],
 })
 export class AuthModule {}

@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { ErrorCode, ErrorType, errorTypes } from '../codes/error';
 type Data = Record<string, any> | string | number | boolean;
 
@@ -6,6 +7,48 @@ export interface IMeta {
   totalCount: number;
   page: number;
   [key: string]: any;
+}
+
+export interface IError {
+  code?: number | string;
+  type?: string;
+  context: string;
+  message?: string;
+  stack?: any;
+  [key: string]: any;
+}
+
+export interface IErrorResponse<T> {
+  success?: false;
+  message?: string;
+  errors?: T[];
+  meta?: Partial<IMeta>;
+}
+
+export type ErrorResponse<D = IError> = IErrorResponse<D>;
+export function errorResponse(
+  errors?: IError[] | IError,
+  message?: string,
+  meta?: Partial<IMeta>,
+): ErrorResponse<IError> {
+  if (errors && !Array.isArray(errors)) {
+    errors = [errors];
+  }
+  return {
+    errors: errors as IError[],
+    message,
+    meta,
+  };
+}
+
+export class Exception extends HttpException {
+  constructor(
+    errors: IError[] | IError,
+    status: HttpStatus,
+    description?: string,
+  ) {
+    super(errorResponse(errors, description), status);
+  }
 }
 
 export function CustomError(

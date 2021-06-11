@@ -66,4 +66,13 @@ export class UsersService {
       return { ok: false, error: 'Could not create account' };
     }
   }
+
+  async delete(id: number) {
+    try {
+      const deleted = await this.userRespository.delete({ id });
+      return deleted;
+    } catch (error) {
+      throw new HttpException(`Could not delete #${id}`, HttpStatus.NOT_FOUND);
+    }
+  }
 }

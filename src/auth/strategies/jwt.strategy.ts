@@ -1,9 +1,9 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { Request } from 'express';
 import { UserAuthPayload } from '../interfaces/authRequest.interface';
 import { auth } from '../../config';
+import { AuthTokenPayload } from '../interfaces/tokenPayload.interface';
 const config = auth();
 
 @Injectable()
@@ -16,8 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       passReqToCallback: true,
     });
   }
-
-  async validate(request: Request, payload): Promise<UserAuthPayload> {
+  async validate(payload: AuthTokenPayload): Promise<UserAuthPayload> {
     return { id: payload.sub, email: payload.email };
   }
 }
