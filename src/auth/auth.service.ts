@@ -2,11 +2,26 @@ import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { CreateAccountInputDto } from 'src/users/dto/create-account.dto';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
+import { nanoid } from 'nanoid';
 import PostgresErrorCode from 'src/config/postgresErrorCode.enum';
+import { JwtService } from '@nestjs/jwt';
+import { AuthResponse } from '../auth/interfaces/authResponse.interface';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { AppEnv, AuthEnv } from 'src/config';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly usersService: UsersService) {}
+  appConfig: AppEnv;
+  authConfig: AuthEnv;
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    configService: ConfigService,
+  ) {
+    this.appConfig = configService.get<AppEnv>('app');
+    this.authConfig = configService.get<AuthEnv>('auth');
+  }
 
   public async register(registrationInput: CreateAccountInputDto) {
     const hashedPassword = await bcrypt.hash(registrationInput.password, 10);
@@ -31,7 +46,44 @@ export class AuthService {
     }
   }
 
-  public async getAuthUser(email: string, plainTextPassword: string) {
+  public async login(user: Partial<UserEntity>): Promise<AuthResponse> {
+    return this.getAuthToken(user);
+  }
+
+  async getAuthToken({
+    id,
+    email,
+  }: Partial<{
+    id: number;
+    email: string;
+  }>): Promise<AuthResponse> {
+    if (!id || !email) {
+      throw new HttpException('Invalid Token', HttpStatus.BAD_REQUEST);
+    }
+    const tid = nanoid(5);
+    const jwtAccessTokenPayload = { email, sub: id, tid };
+    const jwtRefreshTokenPayload = { email, sub: id, tid };
+
+    const accessToken = this.jwtService.sign(
+      jwtAccessTokenPayload,
+      this.authConfig.jwtAccessTokenOptions,
+    );
+
+    const refreshToken = this.jwtService.sign(
+      jwtRefreshTokenPayload,
+      this.authConfig.jwtAccessTokenOptions,
+    );
+    return {
+      id,
+      email,
+      expires_in: this.authConfig.jwtAccessTokenOptions.expiresIn,
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      token_type: 'Bearer',
+    };
+  }
+
+  public async validateUser(email: string, plainTextPassword: string) {
     try {
       const user = await this.usersService.getByEmail(email);
       await this.verifyPassword(plainTextPassword, user.password);
@@ -54,7 +106,7 @@ export class AuthService {
     );
     if (!isPasswordMatch) {
       throw new HttpException(
-        'Wrong credentials provided',
+        'Wrong credentials (password) provided',
         HttpStatus.BAD_REQUEST,
       );
     }

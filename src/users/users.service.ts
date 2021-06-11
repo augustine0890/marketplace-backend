@@ -2,21 +2,24 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAccountInputDto } from './dto/create-account.dto';
-import { User } from './entities/user.entity';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRespository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRespository: Repository<UserEntity>,
   ) {}
 
   async getAllUsers() {
     try {
       const users = await this.userRespository.find();
       return users;
-    } catch (e) {
-      return { error: `Could not get the Users.` };
+    } catch (error) {
+      throw new HttpException(
+        'Could not found the users',
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 
@@ -25,7 +28,10 @@ export class UsersService {
       const user = await this.userRespository.findOneOrFail({ id });
       return user;
     } catch (error) {
-      return { error: `User #${id} Not Found` };
+      throw new HttpException(
+        `User id #${id} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
     }
   }
 

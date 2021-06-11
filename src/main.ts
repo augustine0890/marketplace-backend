@@ -1,6 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config();
+
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -15,6 +19,8 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.use(cookieParser());
 
   const options = new DocumentBuilder()
     .setTitle('MarketPlace')
