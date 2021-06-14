@@ -1,6 +1,7 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import * as redisStore from 'cache-manager-redis-store';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { config } from './config';
@@ -15,6 +16,16 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
       load: config,
       cache: true,
       validationOptions: { config },
+    }),
+    CacheModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        store: redisStore,
+        host: configService.get('redis').host,
+        port: configService.get('redis').port,
+        ttl: configService.get('redis').cacheTTL,
+      }),
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
