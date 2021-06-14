@@ -7,6 +7,10 @@ export interface AuthEnv {
     // issuer: string;
     // audience: string;
   };
+  jwtRefreshTokenOptions: {
+    secret: string;
+    expiresIn: string;
+  };
 }
 
 export const auth = (): AuthEnv => ({
@@ -15,6 +19,10 @@ export const auth = (): AuthEnv => ({
     expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME,
     // issuer: process.env.ISSUER,
     // audience: process.env.AUDIENCE,
+  },
+  jwtRefreshTokenOptions: {
+    secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+    expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME,
   },
 });
 

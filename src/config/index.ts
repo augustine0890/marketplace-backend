@@ -11,3 +11,4 @@ export * from './app';
 export * from './auth';
 export * from './redis';
 export * from './settings';
+export * from './env.validation';

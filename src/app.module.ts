@@ -5,10 +5,11 @@ import * as redisStore from 'cache-manager-redis-store';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { config } from './config';
+import { validate } from './config/env.validation';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+// import { APP_GUARD } from '@nestjs/core';
+// import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -16,11 +17,12 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
       load: config,
       cache: true,
       validationOptions: { config },
+      validate,
     }),
     CacheModule.registerAsync({
       imports: [ConfigModule],
-      inject: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
         store: redisStore,
         host: configService.get('redis').host,
         port: configService.get('redis').port,
@@ -47,10 +49,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard,
-    },
+    // {
+    // provide: APP_GUARD,
+    // useClass: JwtAuthGuard,
+    // },
   ],
 })
 export class AppModule {}

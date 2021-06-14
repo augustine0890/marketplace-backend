@@ -7,12 +7,15 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthController } from './auth.controller';
 import { auth } from '../config/auth';
+import { JwtRefreshStrategy } from './strategies/refresh.strategy';
+import { RedisModule } from 'src/common/modules/redis/redis.module';
 
 const config = auth();
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    RedisModule,
     JwtModule.register({
       secret: config.jwtAccessTokenOptions.secret,
       signOptions: {
@@ -21,7 +24,7 @@ const config = auth();
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
-  exports: [],
+  providers: [AuthService, LocalStrategy, JwtStrategy, JwtRefreshStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}

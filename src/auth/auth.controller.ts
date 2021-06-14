@@ -15,6 +15,7 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { AuthService } from './auth.service';
 import { RegisterInputDto } from './dto/register.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import JwtRefreshGuard from './guards/refresh-auth.guard';
 import { AuthenticatedRequest } from './interfaces/authRequest.interface';
 import { AuthResponse } from './interfaces/authResponse.interface';
 import { SuccessResponseDTO } from 'src/common/response';
@@ -57,6 +58,7 @@ export class AuthController {
 
   @Public()
   @Get('refresh')
+  @UseGuards(JwtRefreshGuard)
   async refresh(
     @Req() request: AuthenticatedRequest,
   ): Promise<SuccessResponseDTO> {

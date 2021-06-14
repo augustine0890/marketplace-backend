@@ -5,7 +5,7 @@ import * as cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppEnv } from './config';
 import { Reflector } from '@nestjs/core';
-import { DataTransformInterceptor } from './common/interceptor';
+// import { DataTransformInterceptor } from './common/interceptor';
 
 export const setupApp = (app: INestApplication): AppEnv => {
   const configService = app.get(ConfigService);
@@ -27,7 +27,7 @@ export const setupApp = (app: INestApplication): AppEnv => {
   const reflector = app.get(Reflector);
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(reflector),
-    new DataTransformInterceptor(),
+    // new DataTransformInterceptor(),
   );
 
   const options = new DocumentBuilder()

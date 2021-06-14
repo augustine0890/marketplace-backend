@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { getErrorMessage, stackObj } from 'src/utils';
 import { ErrorCode, ErrorType, errorTypes } from '../codes/error';
 type Data = Record<string, any> | string | number | boolean;
 
@@ -48,6 +49,33 @@ export class Exception extends HttpException {
     description?: string,
   ) {
     super(errorResponse(errors, description), status);
+  }
+}
+
+export class CustomException extends HttpException {
+  constructor(
+    error: IError,
+    status: HttpStatus,
+    context?: string,
+    description?: string,
+  ) {
+    const message = getErrorMessage(error);
+    super(
+      errorResponse(
+        [
+          {
+            message: getErrorMessage(error),
+            code: error.code,
+            context: context,
+            type: errorTypes[error.code],
+            stack: stackObj(error.message),
+            data: error?.data || undefined,
+          },
+        ],
+        description || message,
+      ),
+      status,
+    );
   }
 }
 
