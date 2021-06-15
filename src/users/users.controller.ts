@@ -2,19 +2,21 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
+  // HttpException,
+  // HttpStatus,
   Param,
+  Request,
   ParseIntPipe,
-  Req,
   UseInterceptors,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiForbiddenResponse, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UsersRO } from './interfaces/user.interface';
 import { Public } from '../auth/decorator/public.decorator';
-import { AuthenticatedRequest } from 'src/auth/interfaces/authRequest.interface';
-import { SuccessResponse } from 'src/common/response';
+// import { AuthenticatedRequest } from 'src/auth/interfaces/authRequest.interface';
+// import { SuccessResponse } from 'src/common/response';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 // import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('users')
@@ -38,15 +40,19 @@ export class UserController {
   }
 
   @Public()
+  @UseGuards(JwtAuthGuard)
   @Get('me')
-  async getProfile(
-    @Req() request: AuthenticatedRequest,
-  ): Promise<SuccessResponse> {
-    try {
-      const data = await this.usersService.getById(request.user.id);
-      return { data };
-    } catch (error) {
-      throw new HttpException(error, HttpStatus.BAD_REQUEST);
-    }
+  // async getProfile(
+  // @Request() request: AuthenticatedRequest,
+  // ): Promise<SuccessResponse> {
+  // try {
+  // const data = await this.usersService.getById(request.user.id);
+  // return { data };
+  // } catch (error) {
+  // throw new HttpException(error, HttpStatus.BAD_REQUEST);
+  // }
+  // }
+  async getProfile(@Request() request) {
+    console.log(request.user.id);
   }
 }

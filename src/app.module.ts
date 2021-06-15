@@ -5,7 +5,7 @@ import * as redisStore from 'cache-manager-redis-store';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { config } from './config';
-import { validate } from './config/env.validation';
+// import { validate } from './config/env.validation';
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 // import { APP_GUARD } from '@nestjs/core';
@@ -17,7 +17,7 @@ import { AppController } from './app.controller';
       load: config,
       cache: true,
       validationOptions: { config },
-      validate,
+      // validate,
     }),
     CacheModule.registerAsync({
       imports: [ConfigModule],
